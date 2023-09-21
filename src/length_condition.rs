@@ -1,7 +1,5 @@
-use std::any::{Any, TypeId};
 use pyo3::prelude::*;
 use pyo3::exceptions::{PyAttributeError, PyBaseException, PyTypeError};
-use pyo3::ffi::PyTypeObject;
 use pyo3::PyTypeInfo;
 use pyo3::types::{PyList, PyType};
 
@@ -47,7 +45,6 @@ pub fn check_length(_py: Python,
                             }
                         }
                     }
-
                 }
             }
         }
@@ -60,7 +57,7 @@ pub fn check_length(_py: Python,
                     raise_length_error_if(_py, handle_with, message)
                 }
             } else {
-                Err(PyAttributeError::new_err(item.to_string() + " does not support __len__."))
+                Err(PyAttributeError::new_err(format!("'{}' does not support __len__.", item.get_type().name().unwrap_or(""))))
             }
         }
     }

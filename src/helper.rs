@@ -1,5 +1,5 @@
 use pyo3::exceptions::{PyAssertionError, PyUserWarning, PyWarning};
-use pyo3::{PyAny, PyErr};
+use pyo3::{PyErr};
 use pyo3::types::PyType;
 
 pub fn check_handle_with(handle_with: Option<&PyType>, message: Option<&str>) -> PyErr {
