@@ -260,13 +260,13 @@ def test_check_if_in_limits_negative():
         check_if_in_limits(None)
 
 
-# def test_check_length_edge_cases():
-#     with pytest.raises(TypeError, match="required positional argument"):
-#         check_length("tomato soup is good")
-#     with pytest.raises(TypeError, match="'int' object is not callable"):
-#         check_length([1], 1, operator=1)
-#
-#
+def test_check_length_edge_cases():
+    with pytest.raises(TypeError, match="required positional argument"):
+        check_length("tomato soup is good")
+    with pytest.raises(TypeError, match="'int' object is not callable"):
+        check_length([1], 1, operator=1)
+
+
 def test_check_length_positive():
     assert check_length(["string"], 1) is None
     assert check_length(["string"], 1, handle_with=Warning) is None
@@ -276,23 +276,23 @@ def test_check_length_positive():
     assert check_length([1, 2], 2, handle_with=Warning) is None
     assert check_length(range(0, 3), 3) is None
     assert check_length(range(0, 3), 3, handle_with=Warning) is None
-#     assert check_length(10, 1, assign_length_to_others=True) is None
-#     assert (
-#         check_length(10, 1, assign_length_to_others=True, handle_with=Warning)
-#         is None
-#     )
-#     assert (
-#         check_length(
-#             decimal.Decimal("3.55634"), 1, assign_length_to_others=True
-#         )
-#         is None
-#     )
-#     assert (
-#         check_length(
-#             fractions.Fraction(3, 55), 1, assign_length_to_others=True
-#         )
-#         is None
-#     )
+    assert check_length(10, 1, assign_length_to_others=True) is None
+    assert (
+        check_length(10, 1, assign_length_to_others=True, handle_with=Warning)
+        is None
+    )
+    assert (
+        check_length(
+            decimal.Decimal("3.55634"), 1, assign_length_to_others=True
+        )
+        is None
+    )
+    assert (
+        check_length(
+            fractions.Fraction(3, 55), 1, assign_length_to_others=True
+        )
+        is None
+    )
 #
 #
 # def test_check_length_negative():
