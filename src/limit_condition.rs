@@ -7,7 +7,7 @@ use pyo3::types::PyType;
 
 use crate::helper;
 
-pyo3::create_exception!(mymodule, LimitError, PyBaseException);
+pyo3::create_exception!(reasycheck, LimitError, PyBaseException);
 
 #[pyfunction]
 pub fn check_if_in_limits(_py: Python,

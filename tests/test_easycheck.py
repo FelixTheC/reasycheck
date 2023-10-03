@@ -17,15 +17,14 @@ from reasycheck.reasycheck import (
     assert_if_in_limits,
     LimitError,
     LengthError,
-    check_length
+    check_length,
+    check_if_isclose,
+    assert_if_isclose,
+    NotCloseEnoughError,
 )
 # from reasycheck import (
-#     check_if_in_limits,
-#     assert_if_in_limits,
 #     check_type,
 #     assert_type,
-#     check_if_isclose,
-#     assert_if_isclose,
 #     check_if_paths_exist,
 #     assert_paths,
 #     check_length,
@@ -85,8 +84,8 @@ def test_switched_off_checks_exceptions():
         assert check_if(2 < 1) is None
         assert check_if_not(1 == 1) is None
         assert check_if_in_limits(1, 3, 5) is None
-#         assert check_length(10, 3) is None
-#         assert check_if_isclose(1.12, 1.123, abs_tol=0.0005) is None
+        assert check_length(10, 3) is None
+        assert check_if_isclose(1.12, 1.123, abs_tol=0.0005) is None
 #         assert check_type(True, (str, complex)) is None
 #         assert catch_check(check_if, 2 == 2) is None
 #         assert check_comparison(3, eq, 2) is None
@@ -105,7 +104,7 @@ def test_switched_off_checks_warnings():
             check_if(2 < 1, Warning)
             check_if_not(1 == 1, Warning)
             check_if_in_limits(1, 3, 5, handle_with=Warning)
-#         check_length(10, 3, handle_with=Warning)
+            check_length(10, 3, handle_with=Warning)
 #         check_type(True, (str, complex), handle_with=Warning)
 #         catch_check(check_if, 2 == 2, handle_with=Warning)
 #         check_comparison(3, eq, 2, handle_with=Warning)
@@ -133,24 +132,23 @@ def test_check_if_negative_warnings():
         assert "This is a testing warning" in str(warn)
 
 
-#
-# def test_check_if_not_edge_cases():
-#     with pytest.raises(TypeError, match="required positional argument"):
-#         check_if_not()
-#     assert check_if_not(False) is None
-#     with pytest.raises(AssertionError):
-#         check_if_not(True)
-#     with pytest.raises(
-#         TypeError, match="he error argument must be an exception or a warning"
-#     ):
-#         check_if_not(1, 1)
-#     with pytest.raises(
-#         TypeError, match="message must be either None or string"
-#     ):
-#         check_if_not(1, ValueError, 1)
-#     with pytest.raises(TypeError, match="takes from 1 to 3 positional"):
-#         check_if_not(1, 1, 1, 1)
-#
+def test_check_if_not_edge_cases():
+    with pytest.raises(TypeError, match="required positional argument"):
+        check_if_not()
+    assert check_if_not(False) is None
+    with pytest.raises(AssertionError):
+        check_if_not(True)
+    # with pytest.raises(
+    #     AssertionError, match="The error argument must be an exception or a warning"
+    # ):
+    #     check_if_not(True, 1)
+    # with pytest.raises(
+    #     TypeError, match="message must be either None or string"
+    # ):
+    #     check_if_not(1, ValueError, 1)
+    with pytest.raises(TypeError, match="takes from 1 to 3 positional"):
+        check_if_not(1, 1, 1, 1)
+
 
 def test_check_if_not_positive():
     assert check_if_not(2 < 1) is None
@@ -293,96 +291,97 @@ def test_check_length_positive():
         )
         is None
     )
-#
-#
-# def test_check_length_negative():
-#     with pytest.raises(TypeError):
-#         check_length(len(i for i in range(3)), 3)
-#     with pytest.raises(TypeError):
-#         check_length(None)
-#     with pytest.raises(TypeError, match="object of type 'int' has no len()"):
-#         check_length(10, 1)
-#     with pytest.raises(TypeError, match="'decimal.Decimal' has no len()"):
-#         check_length(
-#             decimal.Decimal("3.55634"), 1, assign_length_to_others=False
-#         )
-#     with pytest.raises(TypeError, match="'Fraction' has no len()"):
-#         check_length(
-#             fractions.Fraction(3, 55), 1, assign_length_to_others=False
-#         )
-#
-#
-# def test_check_length_negative_warnings():
-#     with warnings.catch_warnings(record=True) as w:
-#         check_length(
-#             [1, 2],
-#             expected_length=1,
-#             handle_with=Warning,
-#             message="This is a testing warning",
-#         )
-#         assert "This is a testing warning" in str(w[-1].message)
-#
-#
-# def test_check_if_isclose_edge_cases():
-#     with pytest.raises(ValueError, match="tolerances must be non-negative"):
-#         check_if_isclose(1.1, 1.2, abs_tol=-1)
-#     with pytest.raises(ValueError, match="tolerances must be non-negative"):
-#         check_if_isclose(1.1, 1.2, rel_tol=-1)
-#     with pytest.raises(TypeError, match="must be real number, not str"):
-#         check_if_isclose(1.1, 1.2, rel_tol=".1")
-#     with pytest.raises(TypeError, match="must be real number, not str"):
-#         check_if_isclose(1.1, 1.2, abs_tol=".1")
-#     with pytest.raises(
-#         ValueError, match="could not convert string to float: '1,1'"
-#     ):
-#         check_if_isclose("1,1", "1.2", abs_tol=".1")
-#     with pytest.raises(
-#         TypeError,
-#         match=("positional-only arguments passed" " as keyword arguments"),
-#     ):
-#         check_if_isclose(x="1.1", y="1.2")
-#
-#
-# def test_check_if_isclose_positive():
-#     assert check_if_isclose(1.12, 1.12, abs_tol=0.01) is None
-#     assert check_if_isclose(1.12, 1.123, abs_tol=0.05) is None
-#     assert check_if_isclose(1.12, 1.123, rel_tol=0.01) is None
-#     assert check_if_isclose(1.12, 1.123, rel_tol=0.05) is None
-#
-#     assert check_if_isclose("1.12", 1.12, abs_tol=0.01) is None
-#     assert check_if_isclose(1.12, "1.12", abs_tol=0.01) is None
-#     assert check_if_isclose("1.12", "1.12", abs_tol=0.01) is None
-#     assert check_if_isclose(" 1.12 ", 1.12, abs_tol=0.01) is None
-#     assert check_if_isclose(" 1.12 ", "\t1.12\n", abs_tol=0.01) is None
-#     assert (
-#         check_if_isclose(
-#             " 1.12 ", "\t     1.12   \n  \n   \n\n\n", abs_tol=0.01
-#         )
-#         is None
-#     )
-#
-#     assert (
-#         check_if_isclose(1.12, 1.123, rel_tol=0.05, handle_with=ValueError)
-#         is None
-#     )
-#
-#     # any of the two check (abs_tol or rel_tol) is enough
-#     # for the test to pass:
-#     assert check_if_isclose(1.12, 1.123, rel_tol=0.05, abs_tol=0.05) is None
-#
-#     check_if_isclose(1.12, 1.123, rel_tol=0.000005, abs_tol=0.05)
-#
-#
-# def test_check_if_isclose_negative():
-#     with pytest.raises(NotCloseEnoughError):
-#         check_if_isclose(1.12, 1.123, abs_tol=0.0005)
-#     with pytest.raises(NotCloseEnoughError):
-#         check_if_isclose(
-#             1.12, 1.123, message="Not close", rel_tol=0, abs_tol=0.0005
-#         )
-#     with pytest.raises(NotCloseEnoughError):
-#         check_if_isclose(1.12, 1.123, rel_tol=0.0005)
-#
+
+
+def test_check_length_negative():
+    with pytest.raises(TypeError):
+        check_length(len(i for i in range(3)), 3)
+    with pytest.raises(TypeError):
+        check_length(None)
+    with pytest.raises(TypeError, match="'int' has no len()"):
+        check_length(10, 1)
+    with pytest.raises(TypeError, match="'Decimal' has no len()"):
+        check_length(
+            decimal.Decimal("3.55634"), 1, assign_length_to_others=False
+        )
+    with pytest.raises(TypeError, match="'Fraction' has no len()"):
+        check_length(
+            fractions.Fraction(3, 55), 1, assign_length_to_others=False
+        )
+
+
+def test_check_length_negative_warnings():
+    try:
+        check_length(
+            [1, 2],
+            expected_length=1,
+            handle_with=Warning,
+            message="This is a testing warning",
+        )
+    except Warning as warn:
+        assert warn.args[0] == "This is a testing warning"
+
+
+def test_check_if_isclose_edge_cases():
+    with pytest.raises(ValueError, match="tolerances must be non-negative"):
+        check_if_isclose(1.1, 1.2, abs_tol=-1.0)
+    with pytest.raises(ValueError, match="tolerances must be non-negative"):
+        check_if_isclose(1.1, 1.2, rel_tol=-1.0)
+    with pytest.raises(TypeError, match="must be real number, not str"):
+        check_if_isclose(1.1, 1.2, rel_tol=".1")
+    with pytest.raises(TypeError, match="must be real number, not str"):
+        check_if_isclose(1.1, 1.2, abs_tol=".1")
+    with pytest.raises(
+        ValueError, match="could not convert string to float: '1,1'"
+    ):
+        check_if_isclose("1,1", "1.2", abs_tol=".1")
+    with pytest.raises(
+        TypeError,
+        match=("positional-only arguments passed" " as keyword arguments"),
+    ):
+        check_if_isclose(x="1.1", y="1.2")
+
+
+def test_check_if_isclose_positive():
+    assert check_if_isclose(1.12, 1.12, abs_tol=0.01) is None
+    assert check_if_isclose(1.12, 1.123, abs_tol=0.05) is None
+    assert check_if_isclose(1.12, 1.123, rel_tol=0.01) is None
+    assert check_if_isclose(1.12, 1.123, rel_tol=0.05) is None
+
+    assert check_if_isclose("1.12", 1.12, abs_tol=0.01) is None
+    assert check_if_isclose(1.12, "1.12", abs_tol=0.01) is None
+    assert check_if_isclose("1.12", "1.12", abs_tol=0.01) is None
+    assert check_if_isclose(" 1.12 ", 1.12, abs_tol=0.01) is None
+    assert check_if_isclose(" 1.12 ", "\t1.12\n", abs_tol=0.01) is None
+    assert (
+        check_if_isclose(
+            " 1.12 ", "\t     1.12   \n  \n   \n\n\n", abs_tol=0.01
+        )
+        is None
+    )
+
+    assert (
+        check_if_isclose(1.12, 1.123, rel_tol=0.05, handle_with=ValueError)
+        is None
+    )
+
+    # any of the two check (abs_tol or rel_tol) is enough
+    # for the test to pass:
+    assert check_if_isclose(1.12, 1.123, rel_tol=0.05, abs_tol=0.05) is None
+
+    check_if_isclose(1.12, 1.123, rel_tol=0.000005, abs_tol=0.05)
+
+
+def test_check_if_isclose_negative():
+    with pytest.raises(NotCloseEnoughError):
+        check_if_isclose(1.12, 1.123, abs_tol=0.0005)
+    with pytest.raises(NotCloseEnoughError):
+        check_if_isclose(
+            1.12, 1.123, message="Not close", rel_tol=0, abs_tol=0.0005
+        )
+    with pytest.raises(NotCloseEnoughError):
+        check_if_isclose(1.12, 1.123, rel_tol=0.0005)
+
 #
 # def test_check_type_edge_cases():
 #     with pytest.raises(TypeError, match="required positional argument"):

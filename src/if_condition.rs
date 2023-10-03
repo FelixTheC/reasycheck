@@ -22,7 +22,6 @@ pub fn check_if(_py: Python, condition: Py<PyBool>, handle_with: Option<&PyType>
             } else { Ok(()) }
         }
         Err(_) => {
-            println!("Error");
             Ok(())
         }
     }
