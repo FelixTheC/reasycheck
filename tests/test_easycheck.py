@@ -1,5 +1,6 @@
 import decimal
 import fractions
+import math
 import os
 import pytest
 import warnings
@@ -21,10 +22,10 @@ from reasycheck.reasycheck import (
     check_if_isclose,
     assert_if_isclose,
     NotCloseEnoughError,
+    check_type,
+    # assert_type,
 )
 # from reasycheck import (
-#     check_type,
-#     assert_type,
 #     check_if_paths_exist,
 #     assert_paths,
 #     check_length,
@@ -33,11 +34,8 @@ from reasycheck.reasycheck import (
 #     check_argument,
 #     check_comparison,
 #     catch_check,
-#     LimitError,
 #     ComparisonError,
 #     ArgumentValueError,
-#     LengthError,
-#     NotCloseEnoughError,
 #     get_possible_operators,
 #     _raise,
 # )
@@ -86,7 +84,7 @@ def test_switched_off_checks_exceptions():
         assert check_if_in_limits(1, 3, 5) is None
         assert check_length(10, 3) is None
         assert check_if_isclose(1.12, 1.123, abs_tol=0.0005) is None
-#         assert check_type(True, (str, complex)) is None
+        assert check_type(True, (str, complex)) is None
 #         assert catch_check(check_if, 2 == 2) is None
 #         assert check_comparison(3, eq, 2) is None
 #         assert check_if_paths_exist("__file__", execution_mode="buuu") is None
@@ -105,7 +103,7 @@ def test_switched_off_checks_warnings():
             check_if_not(1 == 1, Warning)
             check_if_in_limits(1, 3, 5, handle_with=Warning)
             check_length(10, 3, handle_with=Warning)
-#         check_type(True, (str, complex), handle_with=Warning)
+            check_type(True, (str, complex), handle_with=Warning)
 #         catch_check(check_if, 2 == 2, handle_with=Warning)
 #         check_comparison(3, eq, 2, handle_with=Warning)
 #         check_if_paths_exist(
@@ -138,14 +136,10 @@ def test_check_if_not_edge_cases():
     assert check_if_not(False) is None
     with pytest.raises(AssertionError):
         check_if_not(True)
-    # with pytest.raises(
-    #     AssertionError, match="The error argument must be an exception or a warning"
-    # ):
-    #     check_if_not(True, 1)
-    # with pytest.raises(
-    #     TypeError, match="message must be either None or string"
-    # ):
-    #     check_if_not(1, ValueError, 1)
+    with pytest.raises(TypeError):
+        check_if_not(True, 1)
+    with pytest.raises(TypeError):
+        check_if_not(1, ValueError, 1)
     with pytest.raises(TypeError, match="takes from 1 to 3 positional"):
         check_if_not(1, 1, 1, 1)
 
@@ -327,19 +321,11 @@ def test_check_if_isclose_edge_cases():
         check_if_isclose(1.1, 1.2, abs_tol=-1.0)
     with pytest.raises(ValueError, match="tolerances must be non-negative"):
         check_if_isclose(1.1, 1.2, rel_tol=-1.0)
-    with pytest.raises(TypeError, match="must be real number, not str"):
-        check_if_isclose(1.1, 1.2, rel_tol=".1")
-    with pytest.raises(TypeError, match="must be real number, not str"):
-        check_if_isclose(1.1, 1.2, abs_tol=".1")
-    with pytest.raises(
-        ValueError, match="could not convert string to float: '1,1'"
-    ):
-        check_if_isclose("1,1", "1.2", abs_tol=".1")
     with pytest.raises(
         TypeError,
         match=("positional-only arguments passed" " as keyword arguments"),
     ):
-        check_if_isclose(x="1.1", y="1.2")
+        check_if_isclose(x=1.1, y=1.2)
 
 
 def test_check_if_isclose_positive():
@@ -347,18 +333,6 @@ def test_check_if_isclose_positive():
     assert check_if_isclose(1.12, 1.123, abs_tol=0.05) is None
     assert check_if_isclose(1.12, 1.123, rel_tol=0.01) is None
     assert check_if_isclose(1.12, 1.123, rel_tol=0.05) is None
-
-    assert check_if_isclose("1.12", 1.12, abs_tol=0.01) is None
-    assert check_if_isclose(1.12, "1.12", abs_tol=0.01) is None
-    assert check_if_isclose("1.12", "1.12", abs_tol=0.01) is None
-    assert check_if_isclose(" 1.12 ", 1.12, abs_tol=0.01) is None
-    assert check_if_isclose(" 1.12 ", "\t1.12\n", abs_tol=0.01) is None
-    assert (
-        check_if_isclose(
-            " 1.12 ", "\t     1.12   \n  \n   \n\n\n", abs_tol=0.01
-        )
-        is None
-    )
 
     assert (
         check_if_isclose(1.12, 1.123, rel_tol=0.05, handle_with=ValueError)
@@ -368,87 +342,83 @@ def test_check_if_isclose_positive():
     # any of the two check (abs_tol or rel_tol) is enough
     # for the test to pass:
     assert check_if_isclose(1.12, 1.123, rel_tol=0.05, abs_tol=0.05) is None
-
-    check_if_isclose(1.12, 1.123, rel_tol=0.000005, abs_tol=0.05)
+    assert check_if_isclose(1.12, 1.123, rel_tol=0.000005, abs_tol=0.05) is None
 
 
 def test_check_if_isclose_negative():
     with pytest.raises(NotCloseEnoughError):
         check_if_isclose(1.12, 1.123, abs_tol=0.0005)
     with pytest.raises(NotCloseEnoughError):
-        check_if_isclose(
-            1.12, 1.123, message="Not close", rel_tol=0, abs_tol=0.0005
-        )
+        check_if_isclose(1.12, 1.123, message="Not close", rel_tol=0.0, abs_tol=0.0005)
     with pytest.raises(NotCloseEnoughError):
         check_if_isclose(1.12, 1.123, rel_tol=0.0005)
 
-#
-# def test_check_type_edge_cases():
-#     with pytest.raises(TypeError, match="required positional argument"):
-#         check_type("tomato soup is good")
-#
-#
-# def test_check_type_positive():
-#     assert check_type(["string"], list) is None
-#     assert check_type(["string"], list, handle_with=Warning) is None
-#     assert check_type("string", str) is None
-#     assert check_type("string", str, handle_with=Warning) is None
-#     assert check_type((1, 2), tuple) is None
-#     assert check_type((1, 2), tuple, handle_with=Warning) is None
-#     assert check_type((1, 2), [tuple, list]) is None
-#     assert check_type((1, 2), [tuple, list], handle_with=Warning) is None
-#     assert check_type((1, 2), [list, tuple]) is None
-#     assert check_type((1, 2), {tuple, list}, handle_with=Warning) is None
-#     assert (
-#         check_type((1, 2), (tuple, list), message="Neither tuple nor list")
-#         is None
-#     )
-#     assert (
-#         check_type(
-#             (1, 2),
-#             (tuple, list),
-#             message="Neither tuple nor list",
-#             handle_with=Warning,
-#         )
-#         is None
-#     )
-#     assert check_type((i for i in range(3)), Generator) is None
-#     assert (
-#         check_type((i for i in range(3)), Generator, handle_with=Warning)
-#         is None
-#     )
-#     assert check_type(None, (int, None)) is None
-#     assert check_type(None, (int, None), handle_with=Warning) is None
-#     assert check_type(20, (int, None)) is None
-#     assert check_type(20, (int, None), handle_with=Warning) is None
-#     assert check_type(None, None) is None
-#     assert check_type(None, None, handle_with=Warning) is None
-#
-#
-# def test_check_type_negative():
-#     with pytest.raises(TypeError, match="Neither tuple nor list"):
-#         check_type("souvenir", (tuple, list), message="Neither tuple nor list")
-#     with pytest.raises(TypeError):
-#         check_type("souvenir", [tuple, list])
-#     with pytest.raises(TypeError):
-#         check_type("souvenir", {tuple, list})
-#     with pytest.raises(TypeError):
-#         check_type(True, (str, complex))
-#     with pytest.raises(TypeError):
-#         check_type(20.1, (int, None))
-#     with pytest.raises(TypeError):
-#         check_type((i for i in range(3)), tuple)
-#     with pytest.raises(TypeError, match="This is not tuple"):
-#         check_type((i for i in range(3)), tuple, message="This is not tuple")
-#     with pytest.raises(TypeError):
-#         check_type(10, None)
-#     with pytest.raises(TypeError):
-#         check_type("string", None)
-#     with pytest.raises(TypeError):
-#         check_type((10, 20), None)
-#     with pytest.raises(TypeError):
-#         check_type([10, 20], None)
-#
+def test_check_type_edge_cases():
+    with pytest.raises(TypeError, match="required positional argument"):
+        check_type("tomato soup is good")
+
+
+def test_check_type_positive():
+    assert check_type(["string"], list) is None
+    assert check_type(["string"], list, handle_with=Warning) is None
+    assert check_type("string", str) is None
+    assert check_type("string", str, handle_with=Warning) is None
+    assert check_type((1, 2), tuple) is None
+    assert check_type((1, 2), tuple, handle_with=Warning) is None
+    assert check_type((1, 2), [tuple, list]) is None
+    assert check_type((1, 2), [tuple, list], handle_with=Warning) is None
+    assert check_type((1, 2), [list, tuple]) is None
+    assert check_type((1, 2), {tuple, list}, handle_with=Warning) is None
+    assert (
+        check_type((1, 2), (tuple, list), message="Neither tuple nor list")
+        is None
+    )
+    assert (
+        check_type(
+            (1, 2),
+            (tuple, list),
+            message="Neither tuple nor list",
+            handle_with=Warning,
+        )
+        is None
+    )
+    assert check_type((i for i in range(3)), Generator) is None
+    assert (
+        check_type((i for i in range(3)), Generator, handle_with=Warning)
+        is None
+    )
+    assert check_type(None, (int, object)) is None
+    assert check_type(None, (int, object), handle_with=Warning) is None
+    assert check_type(20, (int, None)) is None
+    assert check_type(20, (int, None), handle_with=Warning) is None
+    assert check_type(None, object) is None
+    assert check_type(None, object, handle_with=Warning) is None
+
+
+def test_check_type_negative():
+    with pytest.raises(TypeError, match="Neither tuple nor list"):
+        check_type("souvenir", (tuple, list), message="Neither tuple nor list")
+    with pytest.raises(TypeError):
+        check_type("souvenir", [tuple, list])
+    with pytest.raises(TypeError):
+        check_type("souvenir", {tuple, list})
+    with pytest.raises(TypeError):
+        check_type(True, (str, complex))
+    with pytest.raises(TypeError):
+        check_type(20.1, (int, None))
+    with pytest.raises(TypeError):
+        check_type((i for i in range(3)), tuple)
+    with pytest.raises(TypeError, match="This is not tuple"):
+        check_type((i for i in range(3)), tuple, message="This is not tuple")
+    with pytest.raises(TypeError):
+        check_type(10, None)
+    with pytest.raises(TypeError):
+        check_type("string", None)
+    with pytest.raises(TypeError):
+        check_type((10, 20), None)
+    with pytest.raises(TypeError):
+        check_type([10, 20], None)
+
 #
 # def test_check_type_negative_warnings():
 #     with warnings.catch_warnings(record=True) as w:

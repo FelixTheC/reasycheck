@@ -1,8 +1,6 @@
 use std::env;
-use pyo3::callback::IntoPyCallbackOutput;
 
 use pyo3::prelude::*;
-use pyo3::PyTypeInfo;
 use pyo3::types::{PyBool, PyType};
 
 use crate::helper;

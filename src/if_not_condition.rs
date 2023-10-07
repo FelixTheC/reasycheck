@@ -19,7 +19,6 @@ pub fn check_if_not(_py: Python, condition: Py<PyBool>, handle_with: Option<&PyT
             } else { Ok(()) }
         }
         Err(_) => {
-            println!("Error");
             Ok(())
         }
     }

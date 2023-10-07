@@ -1,7 +1,6 @@
 use std::env;
 use pyo3::prelude::*;
-use pyo3::exceptions::{PyAttributeError, PyBaseException, PyTypeError};
-use pyo3::PyTypeInfo;
+use pyo3::exceptions::{PyBaseException, PyTypeError};
 use pyo3::types::{PyList, PyType};
 
 use crate::helper;
