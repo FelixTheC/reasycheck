@@ -1,7 +1,7 @@
 use std::any::Any;
 use std::env;
 use pyo3::{AsPyPointer, IntoPy, pyfunction, PyObject, PyResult, Python, PyTypeInfo};
-use pyo3::exceptions::PyTypeError;
+use pyo3::exceptions::{PyAssertionError, PyTypeError};
 use pyo3::ffi::PyObject_IsInstance;
 use pyo3::types::{PyList, PySet, PyType};
 use crate::helper;
@@ -51,4 +51,10 @@ pub unsafe fn check_type(_py: Python, item: PyObject, expected_type: PyObject, h
             Err(helper::check_handle_warning_with(handle_with, message))
         }
     }
+}
+
+#[pyfunction]
+#[pyo3(signature = (item, expected_type, /, handle_with=None, message=""))]
+pub unsafe fn assert_type(_py: Python, item: PyObject, expected_type: PyObject, handle_with: Option<&PyType>, message: Option<&str>) -> PyResult<()> {
+    check_type(_py, item, expected_type, Option::from(PyAssertionError::new_err(()).get_type(_py)), message)
 }

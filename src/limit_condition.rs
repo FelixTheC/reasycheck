@@ -1,7 +1,7 @@
 use std::env;
 
 use pyo3::prelude::*;
-use pyo3::exceptions::{PyBaseException};
+use pyo3::exceptions::{PyAssertionError, PyBaseException};
 use pyo3::types::PyType;
 
 use crate::helper;
@@ -55,5 +55,5 @@ pub fn assert_if_in_limits(_py: Python,
                            handle_with: Option<&PyType>,
                            message: Option<&str>,
                            include_equal: Option<bool>) -> PyResult<()> {
-    check_if_in_limits(_py, x, lower_limit, upper_limit, handle_with, message, include_equal)
+    check_if_in_limits(_py, x, lower_limit, upper_limit, Option::from(PyAssertionError::new_err(()).get_type(_py)), message, include_equal)
 }

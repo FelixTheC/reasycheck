@@ -2,7 +2,7 @@ use std::env;
 use pyo3::prelude::*;
 use pyo3::{Py, pyfunction, PyResult, Python};
 use pyo3::types::{IntoPyDict, PyBool, PyFloat, PyType};
-use pyo3::exceptions::{PyBaseException};
+use pyo3::exceptions::{PyAssertionError, PyBaseException};
 use crate::helper;
 
 pyo3::create_exception!(reasycheck, NotCloseEnoughError, PyBaseException);
@@ -105,5 +105,5 @@ pub fn assert_if_isclose(_py: Python,
                         message: Option<&str>,
                         rel_tol: Option<f64>,
                         abs_tol: Option<f64>) -> PyResult<()> {
-    check_if_isclose(_py, x, y, handle_with, message, rel_tol, abs_tol)
+    check_if_isclose(_py, x, y, Option::from(PyAssertionError::new_err(()).get_type(_py)), message, rel_tol, abs_tol)
 }

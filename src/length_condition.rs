@@ -1,6 +1,6 @@
 use std::env;
 use pyo3::prelude::*;
-use pyo3::exceptions::{PyBaseException, PyTypeError};
+use pyo3::exceptions::{PyAssertionError, PyBaseException, PyTypeError};
 use pyo3::types::{PyList, PyType};
 
 use crate::helper;
@@ -70,12 +70,12 @@ pub fn check_length(_py: Python,
 }
 
 #[pyfunction]
-pub fn assert_check_length(_py: Python,
-                    item: &PyAny,
-                    expected_length: &PyAny,
-                    handle_with: Option<&PyType>,
-                    message: Option<&str>,
-                    operator: Option<PyObject>,
-                    assign_length_to_others: Option<bool>) -> PyResult<()> {
-    check_length(_py, item, expected_length, handle_with, message, operator, assign_length_to_others)
+pub fn assert_length(_py: Python,
+                     item: &PyAny,
+                     expected_length: &PyAny,
+                     handle_with: Option<&PyType>,
+                     message: Option<&str>,
+                     operator: Option<PyObject>,
+                     assign_length_to_others: Option<bool>) -> PyResult<()> {
+    check_length(_py, item, expected_length, Option::from(PyAssertionError::new_err(()).get_type(_py)), message, operator, assign_length_to_others)
 }

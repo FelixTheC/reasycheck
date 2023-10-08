@@ -1,4 +1,5 @@
 use std::env;
+use pyo3::exceptions::PyAssertionError;
 
 use pyo3::prelude::*;
 use pyo3::types::{PyBool, PyType};
@@ -26,6 +27,6 @@ pub fn check_if_not(_py: Python, condition: Py<PyBool>, handle_with: Option<&PyT
 
 #[pyfunction]
 pub fn assert_if_not(_py: Python, condition: Py<PyBool>, handle_with: Option<&PyType>, message: Option<&str>) -> PyResult<()> {
-    check_if_not(_py, condition, handle_with, message)
+    check_if_not(_py, condition, Option::from(PyAssertionError::new_err(()).get_type(_py)), message)
 }
 

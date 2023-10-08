@@ -23,13 +23,13 @@ from reasycheck.reasycheck import (
     assert_if_isclose,
     NotCloseEnoughError,
     check_type,
-    # assert_type,
+    assert_type,
+    check_length,
+    assert_length,
 )
 # from reasycheck import (
 #     check_if_paths_exist,
 #     assert_paths,
-#     check_length,
-#     assert_length,
 #     check_all_ifs,
 #     check_argument,
 #     check_comparison,
@@ -1320,36 +1320,36 @@ def test_assert_if():
     assert assert_if(10 > 5) == check_if(10 > 5)
     with pytest.raises(AssertionError):
         assert_if(10 < 5)
-#
-# def test_assert_if_not():
-#     assert assert_if_not(10 < 5) == check_if_not(10 < 5)
-#     with pytest.raises(AssertionError):
-#         assert_if_not(10 > 5)
-#
-# def test_assert_if_in_linits():
-#     assert assert_if_in_limits(3, 1, 5) == check_if_in_limits(3, 1, 5)
-#     with pytest.raises(AssertionError):
-#         assert_if_in_limits(1, 3, 5)
-#
-# def test_assert_type():
-#     assert assert_type((10, 10), tuple) == check_type((10, 10), tuple)
-#     with pytest.raises(AssertionError):
-#         assert_type(10, tuple)
-#
-# def test_assert_length():
-#     assert assert_length("str", 3) == check_length("str", 3)
-#     assert assert_length(5, 1, assign_length_to_others=True) == check_length(
-#         5, 1, assign_length_to_others=True
-#     )
-#     with pytest.raises(TypeError):
-#         assert_length(5, 3)
-#     with pytest.raises(AssertionError):
-#         assert_length(5, 3, assign_length_to_others=True)
-#
-# def test_assert_if_iscolse():
-#     assert assert_if_isclose(1.12, 1.123, abs_tol=0.05) == check_if_isclose(1.12, 1.123, abs_tol=0.05)
-#     with pytest.raises(AssertionError):
-#         assert_if_isclose(1.12, 1.123, abs_tol=0.0005)
+
+def test_assert_if_not():
+    assert assert_if_not(10 < 5) == check_if_not(10 < 5)
+    with pytest.raises(AssertionError):
+        assert_if_not(10 > 5)
+
+def test_assert_if_in_linits():
+    assert assert_if_in_limits(3, 1, 5) == check_if_in_limits(3, 1, 5)
+    with pytest.raises(AssertionError):
+        assert_if_in_limits(1, 3, 5)
+
+def test_assert_type():
+    assert assert_type((10, 10), tuple) == check_type((10, 10), tuple)
+    with pytest.raises(AssertionError):
+        assert_type(10, tuple)
+
+def test_assert_length():
+    assert assert_length("str", 3) == check_length("str", 3)
+    assert assert_length(5, 1, assign_length_to_others=True) == check_length(
+        5, 1, assign_length_to_others=True
+    )
+    with pytest.raises(TypeError):
+        assert_length(5, 3)
+    with pytest.raises(AssertionError):
+        assert_length(5, 3, assign_length_to_others=True)
+
+def test_assert_if_iscolse():
+    assert assert_if_isclose(1.12, 1.123, abs_tol=0.05) == check_if_isclose(1.12, 1.123, abs_tol=0.05)
+    with pytest.raises(AssertionError):
+        assert_if_isclose(1.12, 1.123, abs_tol=0.0005)
 #
 # def test_assert_paths():
 #     existing_file = os.listdir(".")[0]
