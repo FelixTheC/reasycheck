@@ -5,6 +5,7 @@ mod limit_condition;
 mod length_condition;
 mod is_close_condition;
 mod check_type_condition;
+mod path_condition;
 
 use pyo3::prelude::*;
 
@@ -23,6 +24,8 @@ fn reasycheck(_py: Python, m: &PyModule) -> PyResult<()> {
     m.add_function(wrap_pyfunction!(is_close_condition::assert_if_isclose, m)?)?;
     m.add_function(wrap_pyfunction!(check_type_condition::check_type, m)?)?;
     m.add_function(wrap_pyfunction!(check_type_condition::assert_type, m)?)?;
+    m.add_function(wrap_pyfunction!(path_condition::check_if_paths_exist, m)?)?;
+    m.add_function(wrap_pyfunction!(path_condition::assert_paths, m)?)?;
     m.add("LimitError", _py.get_type::<limit_condition::LimitError>())?;
     m.add("LengthError", _py.get_type::<length_condition::LengthError>())?;
     m.add("NotCloseEnoughError", _py.get_type::<is_close_condition::NotCloseEnoughError>())?;
